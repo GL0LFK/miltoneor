@@ -1,2 +1,2 @@
-# Miltoneor
-ASCII based RPG game
+# Miltonëor
+ASCII-based RPG game
