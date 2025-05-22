@@ -1,7 +1,9 @@
 import os, random
 from tabulate import tabulate
+import shutil
 
 run = True
+epilogue = True
 menu = True
 play = False
 rules = False
@@ -11,25 +13,27 @@ standing = True
 buy = False
 speak = False
 boss = False
+terminal_width = 80
+terminal_height = 20
 
 HP = 500
 HPMAX = HP
 ATK = 3
-pot = 1     # potions +30HP
-elix = 0    # elixirs +50HP
+pot = 1  # potions +30HP
+elix = 0  # elixirs +50HP
 gold = 0
 x = 0
 y = 0
 
-        #  x = 0     x = 1       x = 2         x = 3    x = 4       x = 5          x = 6
-map = [["plains",  "plains",   "plains",   "plains",  "forest", "mountain",       "cave"],  # y = 0
-       ["forest",  "forest",   "forest",   "forest",  "forest",    "hills",   "mountain"],  # y = 1
-       ["forest",  "fields",   "bridge",   "plains",   "hills",   "forest",      "hills"],  # y = 2
-       ["plains",    "shop",     "town",    "mayor",  "plains",    "hills",   "mountain"],  # y = 3
-       ["plains",  "fields",   "fields",   "plains",   "hills", "mountain",   "mountain"]]  # y = 4
+#  x = 0     x = 1       x = 2         x = 3    x = 4       x = 5          x = 6
+map = [["plains", "plains", "plains", "plains", "forest", "mountain", "cave"],  # y = 0
+       ["forest", "forest", "forest", "forest", "forest", "hills", "mountain"],  # y = 1
+       ["forest", "fields", "bridge", "plains", "hills", "forest", "hills"],  # y = 2
+       ["plains", "shop", "town", "mayor", "plains", "hills", "mountain"],  # y = 3
+       ["plains", "fields", "fields", "plains", "hills", "mountain", "mountain"]]  # y = 4
 
-y_len = len(map)-1
-x_len = len(map[0])-1
+y_len = len(map) - 1
+x_len = len(map[0]) - 1
 
 biom = {
     "plains": {
@@ -65,6 +69,7 @@ biom = {
     }
 }
 
+
 class RGBColorPrint:
     RESET = '\033[0m'
 
@@ -99,10 +104,12 @@ class RGBColorPrint:
                 'forestgreen': (34, 139, 34),
             }
             rgb = colors.get(color_name, (255, 255, 255))  # default white
+
             def printer(*args, sep=' ', end='\n'):
                 r, g, b = rgb
                 text = sep.join(str(arg) for arg in args) + end
                 print(f"\033[38;2;{r};{g};{b}m{text}{self.RESET}", end='')
+
             return printer
         raise AttributeError(f"No such method: {name}")
 
@@ -110,7 +117,7 @@ class RGBColorPrint:
 # Creating the color printer
 cp = RGBColorPrint()
 
-e_list = ["Goblin", "Orc", "Slime"] # we need a list because random.choice does not work with sets
+e_list = ["Goblin", "Orc", "Slime"]  # we need a list because random.choice does not work with sets
 
 mobs = {
     "Goblin": {
@@ -135,11 +142,76 @@ mobs = {
     }
 }
 
+
 def clear():
     os.system("cls")
 
+
 def draw():
     print("xX--------------------Xx")
+
+def align_center(text):
+    terminal_size = shutil.get_terminal_size((80, 20))
+    terminal_width = terminal_size.columns
+
+    lines = text.split('\n')
+    max_line_length = max(len(line) for line in lines)
+    pad = (terminal_width - max_line_length) // 2
+    centered_lines = [(' ' * pad) + line for line in lines]
+    centered_text = '\n'.join(centered_lines) + '\n'
+    return centered_text
+
+def banner(text):
+    block_font = {
+        'A': ['  ██  ', ' █  █ ', '█████', '█   █', '█   █'],
+        'B': ['████ ', '█   █', '████ ', '█   █', '████ '],
+        'C': [' ████', '█    ', '█    ', '█    ', ' ████'],
+        'D': ['████ ', '█   █', '█   █', '█   █', '████ '],
+        'E': ['█████', '█    ', '████ ', '█    ', '█████'],
+        'F': ['█████', '█    ', '████ ', '█    ', '█    '],
+        'G': [' ████', '█    ', '█  ██', '█   █', ' ████'],
+        'H': ['█   █', '█   █', '█████', '█   █', '█   █'],
+        'I': ['█████', '  █  ', '  █  ', '  █  ', '█████'],
+        'J': ['  ███', '   █ ', '   █ ', '█  █ ', ' ██  '],
+        'K': ['█   █', '█  █ ', '███  ', '█  █ ', '█   █'],
+        'L': ['█    ', '█    ', '█    ', '█    ', '█████'],
+        'M': ['█   █', '██ ██', '█ █ █', '█   █', '█   █'],
+        'N': ['█   █', '██  █', '█ █ █', '█  ██', '█   █'],
+        'O': [' ███ ', '█   █', '█   █', '█   █', ' ███ '],
+        'P': ['████ ', '█   █', '████ ', '█    ', '█    '],
+        'Q': [' ███ ', '█   █', '█   █', '█  ██', ' ████'],
+        'R': ['████ ', '█   █', '████ ', '█  █ ', '█   █'],
+        'S': [' ████', '█    ', ' ███ ', '    █', '████ '],
+        'T': ['█████', '  █  ', '  █  ', '  █  ', '  █  '],
+        'U': ['█   █', '█   █', '█   █', '█   █', ' ███ '],
+        'V': ['█   █', '█   █', '█   █', ' █ █ ', '  █  '],
+        'W': ['█   █', '█   █', '█ █ █', '██ ██', '█   █'],
+        'X': ['█   █', ' █ █ ', '  █  ', ' █ █ ', '█   █'],
+        'Y': ['█   █', ' █ █ ', '  █  ', '  █  ', '  █  '],
+        'Z': ['█████', '   █ ', '  █  ', ' █   ', '█████'],
+        ' ': ['     ', '     ', '     ', '     ', '     '],
+        'Ë': ['█████', '█    ', '████ ', '█    ', '█████'],
+        'Ö': [' ███ ', '█ █ █', '█   █', '█ █ █', ' ███ '],
+        'É': ['█████', '█    ', '████ ', '█    ', '█████'],
+        'Á': ['  ██  ', ' █  █ ', '█████', '█   █', '█   █'],
+        'Ő': [' ███ ', '█ █ █', '█   █', '█ █ █', ' ███ '],
+        'Ű': ['█   █', '█   █', '█   █', '█   █', ' ███ '],
+        'Ú': ['█   █', '█   █', '█   █', '█   █', ' ███ '],
+        'Ü': ['█   █', '█   █', '█   █', '█   █', ' ███ '],
+        'Í': ['█████', '  █  ', '  █  ', '  █  ', '█████'],
+        'Ó': [' ███ ', '█   █', '█   █', '█   █', ' ███ '],
+    }
+    text = text.upper()
+    lines = ['' for _ in range(5)]
+    for char in text:
+        if char in block_font:
+            for i in range(5):
+                lines[i] += block_font[char][i] + ' '
+        else:
+            for i in range(5):
+                lines[i] += block_font[' '][i] + ' '
+    banner_str = '\n'.join(lines)
+    return banner_str
 
 def save():
     list = [
@@ -194,7 +266,6 @@ def color_health_bar(current_health, max_health, bar_length=20):
     # return f"[{bar}] {percent}%"
     return f"[{bar}]"
 
-
 def heal(amount):
     global HP
     if HP + amount < HPMAX:
@@ -203,8 +274,9 @@ def heal(amount):
         HP = HPMAX
     cp.colorprint_dwarvenbronze("You healed +" + str(amount) + ".")
 
+
 def battle():
-    global fight, play, run, HP, pot, elix, gold, boss # we will change global variables so we call these in to the function
+    global fight, play, run, HP, pot, elix, gold, boss  # we will change global variables so we call these in to the function
 
     if not boss:
         enemy = random.choice(e_list)
@@ -270,7 +342,8 @@ def battle():
             draw()
             fight = False
             play = False
-            run = False
+            run = True
+            epilogue(True)
             print("GAME OVER")
             input("> ")
 
@@ -281,7 +354,7 @@ def battle():
             gold += g
             print("LOOT: " + str(g) + " gold")
             if random.randint(0, 100) < 75:
-                print("LOOT: 1 potion" )
+                print("LOOT: 1 potion")
                 pot += 1
             if random.randint(0, 100) < 30:
                 print("LOOT: 1 elixir")
@@ -294,6 +367,7 @@ def battle():
                 run = False
             input("> ")
             clear()
+
 
 def shop():
     global buy, gold, ATK, pot, elix  # we will change global variables so we call these in to the function
@@ -344,6 +418,7 @@ def shop():
         if choice == "4":
             buy = False
 
+
 def mayor():
     global speak, key
 
@@ -355,7 +430,8 @@ def mayor():
             print("You are not strong enough, to face the dragon yet! Keep practicing and come back later!")
             key = False
         else:
-            print("You are ready to take it to the dragon! Take this key but be careful with the beast! Many od you have failed before...")
+            print(
+                "You are ready to take it to the dragon! Take this key but be careful with the beast! Many od you have failed before...")
             key = True
 
         draw()
@@ -366,6 +442,7 @@ def mayor():
 
         if choice == "1":
             speak = False
+
 
 def cave():
     global boss, key, fight
@@ -389,7 +466,15 @@ def cave():
         elif choice == "2":
             boss = False
 
+story = "In the shadow-haunted land of Ynev, the skies have darkened with the wrath of an ancient, forgotten god whose anger now takes shape as a colossal dragon, scorching fields and sowing terror among the folk. Rumors swirl like autumn leaves, whispering of doom and the god's thirst for vengeance—a tale fit for the bards of Ilanor and the grim chronicles of Tier Nan Gorduin. Your journey begins in the battered border town of Arascor, where fear has emptied the streets and only the bravest dare to speak of hope. Within the stone walls of the town hall, the weary official, Magistrate Daren, awaits for the help. His eyes haunted by sleepless nights; he alone knows the dragon's lair and guards the ancient key to the hidden mountain passage. To save Ynev from ruin, you must find the Arascor, earn his trust, learn the beast's whereabouts, and claim the key that opens the path to your destiny!"
+
 while run:
+    while epilogue:
+        clear()
+        banner_text = banner("MILTONËOR")
+        cp.colorprint_ancientyellow(align_center(banner_text) + '\n' * 3 + story)
+        input("> ")
+        epilogue = False
     while menu:
         clear()
         draw()
@@ -397,13 +482,13 @@ while run:
         cp.colorprint_ancientyellow("1. NEW GAME")
         cp.colorprint_ancientyellow("2. LOAD GAME")
         cp.colorprint_ancientyellow("3. RULES")
-        cp.colorprint_dwarvenbronze("4. QUIT GAME")
+        cp.colorprint_dwarvenbronze("q. QUIT GAME")
 
         if rules:
             print("Here will be the rules displayed.")
             rules = False
             choice = ""
-            input("> ") # empty input
+            input("> ")  # empty input
         else:
             choice = input("# ")  # empty input
 
@@ -411,8 +496,8 @@ while run:
             clear()
             draw()
             name = input("What's your name, adventurer? ")
-            menu = False    # We get out of the menu loop
-            play = True     # We switch to the play loop
+            menu = False  # We get out of the menu loop
+            play = True  # We switch to the play loop
         elif choice == "2":
             try:
                 f = open("load.txt", "r")
@@ -430,8 +515,8 @@ while run:
                     clear()
                     print("Welcome back, " + name + "!")
                     input("> ")  # waiting for an input
-                    menu = False    # We get out of the menu loop
-                    play = True     # We switch to the play loop
+                    menu = False  # We get out of the menu loop
+                    play = True  # We switch to the play loop
                 else:
                     cp.colorprint_infernored("Your saved game is broken, cannot be loaded")
                     input("> ")  # waiting for an input
@@ -441,11 +526,11 @@ while run:
         elif choice == "3":
             clear()
             rules = True
-        elif choice == "4":
+        elif choice == "q":
             quit()
 
     while play:
-        save() # auto save
+        save()  # auto save
         clear()
 
         if not standing:
@@ -475,7 +560,7 @@ while run:
             cp.colorprint_truegold(gold)
 
             draw()
-            cp.colorprint_dwarvenbronze("0 - SAVE AND QUIT")
+            cp.colorprint_dwarvenbronze("q - SAVE AND QUIT")
             if y > 0:
                 cp.colorprint_mysticblue("w - NORTH ↑ ")
             if x < x_len:
@@ -494,7 +579,7 @@ while run:
 
             dest = input("# ")
 
-            if dest == "0":
+            if dest == "q":
                 play = False
                 menu = True
                 save()
