@@ -1,12 +1,13 @@
-import os, random
+import os, random, sys
 from tabulate import tabulate
 import shutil
+from map import generate_map
 
 run = True
 epilogue = True
 menu = True
 play = False
-rules = False
+credits = False
 key = False
 fight = False
 standing = True
@@ -16,21 +17,18 @@ boss = False
 terminal_width = 80
 terminal_height = 20
 
-HP = 500
+HP = random.randint(50, 75)
 HPMAX = HP
-ATK = 3
-pot = 1  # potions +30HP
+ATK = random.randint(3, 7)
+pot = random.randint(1, 2)  # potions +30HP
 elix = 0  # elixirs +50HP
-gold = 0
+gold = random.randint(0, 3)
 x = 0
 y = 0
 
-#  x = 0     x = 1       x = 2         x = 3    x = 4       x = 5          x = 6
-map = [["plains", "plains", "plains", "plains", "forest", "mountain", "cave"],  # y = 0
-       ["forest", "forest", "forest", "forest", "forest", "hills", "mountain"],  # y = 1
-       ["forest", "fields", "bridge", "plains", "hills", "forest", "hills"],  # y = 2
-       ["plains", "shop", "town", "mayor", "plains", "hills", "mountain"],  # y = 3
-       ["plains", "fields", "fields", "plains", "hills", "mountain", "mountain"]]  # y = 4
+realm_width=random.randint(5, 15)
+realm_height=random.randint(4, 8)
+map = generate_map(realm_width=10, realm_height=5)
 
 y_len = len(map) - 1
 x_len = len(map[0]) - 1
@@ -38,37 +36,97 @@ x_len = len(map[0]) - 1
 biom = {
     "plains": {
         "t": "PLAINS",
-        "e": True},
+        "e": True
+    },
     "forest": {
         "t": "WOODS",
-        "e": True},
+        "e": True
+    },
     "fields": {
         "t": "FIELDS",
-        "e": False},
+        "e": False
+    },
     "bridge": {
         "t": "BRIDGE",
-        "e": True},
+        "e": True
+    },
     "town": {
         "t": "TOWN CENTRE",
-        "e": False},
+        "e": False
+    },
     "shop": {
         "t": "SHOP",
-        "e": False},
+        "e": False
+    },
     "mayor": {
         "t": "MAYOR",
-        "e": False},
+        "e": False
+    },
     "cave": {
         "t": "CAVE",
-        "e": False},
+        "e": False
+    },
     "mountain": {
         "t": "MOUNTAIN",
-        "e": True},
+        "e": True
+    },
     "hills": {
         "t": "HILLS",
-        "e": True,
+        "e": True
+    },
+    "jewelery": {
+        "t": "JEWELERY",
+        "e": False
+    },
+    "alchemy": {
+        "t": "ALCHEMY",
+        "e": False
+    },
+    "tavern": {
+        "t": "TAVERN",
+        "e": False
+    },
+    "stables": {
+        "t": "STABLES",
+        "e": False
+    },
+    "blacksmith": {
+        "t": "BLACKSMITH",
+        "e": False
+    },
+    "coast": {
+        "t": "COAST",
+        "e": True
+    },
+    "underpass": {
+        "t": "UNDERPASS",
+        "e": True
+    },
+    "jail": {
+        "t": "JAIL",
+        "e": False
+    },
+    "court": {
+        "t": "COURT",
+        "e": False
+    },
+    "Alidar": {
+        "t": "ALIDAR",
+        "e": False
+    },
+    "Erigow": {
+        "t": "ERIGOW",
+        "e": False
+    },
+    "Sirenar": {
+        "t": "SIRENAR",
+        "e": False
+    },
+    "Yllinor": {
+        "t": "YLLINOR",
+        "e": False
     }
 }
-
 
 class RGBColorPrint:
     RESET = '\033[0m'
@@ -113,39 +171,41 @@ class RGBColorPrint:
             return printer
         raise AttributeError(f"No such method: {name}")
 
-
 # Creating the color printer
 cp = RGBColorPrint()
 
-e_list = ["Goblin", "Orc", "Slime"]  # we need a list because random.choice does not work with sets
+e_list = ["Goblin", "Orc", "Troll", "Ogre"]  # we need this to be a list, because random.choice does not work with sets
 
 mobs = {
     "Goblin": {
-        "hp": 15,
-        "at": 3,
-        "go": 8
+        "hp": random.randint(10, 20),
+        "at": random.randint(2, 6),
+        "go": random.randint(6, 10)
     },
     "Orc": {
-        "hp": 35,
-        "at": 5,
-        "go": 18
+        "hp": random.randint(30, 50),
+        "at": random.randint(4, 9),
+        "go": random.randint(3, 18)
     },
-    "Slime": {
-        "hp": 30,
-        "at": 2,
-        "go": 12
+    "Troll": {
+        "hp": random.randint(25, 75),
+        "at": random.randint(9, 15),
+        "go": random.randint(20, 50)
+    },
+    "Ogre": {
+        "hp": random.randint(10, 55),
+        "at": random.randint(2, 20),
+        "go": random.randint(20, 35)
     },
     "Dragon": {
-        "hp": 100,
-        "at": 8,
-        "go": 100
+        "hp": random.randint(90, 200),
+        "at": random.randint(15, 50),
+        "go": random.randint(50, 300)
     }
 }
 
-
 def clear():
     os.system("cls")
-
 
 def draw():
     print("xX--------------------Xx")
@@ -235,21 +295,20 @@ def save():
 def showmap():
     global map, play, biom, x, y, x_len, y_len
 
-    # 1. Copy the map and highlight the player's position
     display_map = []
     for y_index in range(y_len + 1):
         row = []
         for x_index in range(x_len + 1):
             field = map[y_index][x_index]
             if y_index == y and x_index == x:
-                # Highlight the player's position
+                # This is where the player is standing:
                 row.append(f"\033[1;32m{field}\033[0m")
             else:
                 row.append(field)
         display_map.append(row)
 
     cp.colorprint_ancientyellow("LOCATION: " + biom[map[y][x]]["t"])
-    print(tabulate(display_map, tablefmt="fancy_grid", stralign="center"))
+    print(tabulate(display_map, tablefmt="rounded_grid", stralign="center"))
 
 def color_health_bar(current_health, max_health, bar_length=20):
     health_ratio = max(0, current_health) / max_health
@@ -274,7 +333,6 @@ def heal(amount):
         HP = HPMAX
     cp.colorprint_dwarvenbronze("You healed +" + str(amount) + ".")
 
-
 def battle():
     global fight, play, run, HP, pot, elix, gold, boss  # we will change global variables so we call these in to the function
 
@@ -293,10 +351,10 @@ def battle():
         draw()
         cp.colorprint_infernored("Defeat the " + enemy + "!")
         draw()
-        cp.colorprint_celestialwhite(enemy, end="")
-        print(f"HP: {color_health_bar(hp, hpmax)} {hp}/{hpmax}")
-        cp.colorprint_celestialwhite(name, end="")
-        print(f"HP: {color_health_bar(HP, HPMAX)} {HP}/{HPMAX}")
+        cp.colorprint_celestialwhite(enemy + " ", end="")
+        cp.colorprint_celestialwhite(f"HP: {color_health_bar(hp, hpmax)} {hp}/{hpmax}")
+        cp.colorprint_celestialwhite(name + " ", end="")
+        cp.colorprint_celestialwhite(f"HP: {color_health_bar(HP, HPMAX)} {HP}/{HPMAX}")
         cp.colorprint_celestialwhite("POTIONS ", end="")
         cp.colorprint_emberorange(pot)
         cp.colorprint_celestialwhite("ELIXIRS ", end="")
@@ -342,10 +400,11 @@ def battle():
             draw()
             fight = False
             play = False
-            run = True
-            epilogue(True)
+            run = False
+            epilogue = False
             print("GAME OVER")
             input("> ")
+
 
         if hp <= 0:
             print(name + " has killed the " + enemy + "!")
@@ -368,7 +427,6 @@ def battle():
             input("> ")
             clear()
 
-
 def shop():
     global buy, gold, ATK, pot, elix  # we will change global variables so we call these in to the function
 
@@ -385,7 +443,7 @@ def shop():
         print("1 - BUY POTION (30HP) - 5 GOLD")
         print("2 - BUY ELIXIR (MAXHP) - 8 GOLD")
         print("3 - UPGRADE WEAPON (+2ATK) - 10 GOLD")
-        print("4 - LEAVE")
+        print("q - LEAVE")
         draw()
 
         choice = input("# ")
@@ -415,9 +473,8 @@ def shop():
             else:
                 print("Not enough gold.")
             input("> ")
-        if choice == "4":
+        if choice == "q":
             buy = False
-
 
 def mayor():
     global speak, key
@@ -425,24 +482,23 @@ def mayor():
     while speak:
         clear()
         draw()
-        print("Hello there: " + name + "!")
+        print("ARCENSERAN: Hello there: " + name + "!")
         if ATK < 10:
-            print("You are not strong enough, to face the dragon yet! Keep practicing and come back later!")
+            print("ARCENSERAN: You are not strong enough, to face the dragon yet! Keep practicing and come back later!")
             key = False
         else:
-            print(
-                "You are ready to take it to the dragon! Take this key but be careful with the beast! Many od you have failed before...")
+            print("ARCENSERAN: You are ready to take it to the dragon! Take this key but be careful with the beast! "
+                  "Many od you have failed before...")
             key = True
 
         draw()
-        print("1 - LEAVE")
+        print("q - LEAVE")
         draw()
 
         choice = input("# ")
 
-        if choice == "1":
+        if choice == "q":
             speak = False
-
 
 def cave():
     global boss, key, fight
@@ -466,7 +522,15 @@ def cave():
         elif choice == "2":
             boss = False
 
-story = "In the shadow-haunted land of Ynev, the skies have darkened with the wrath of an ancient, forgotten god whose anger now takes shape as a colossal dragon, scorching fields and sowing terror among the folk. Rumors swirl like autumn leaves, whispering of doom and the god's thirst for vengeance—a tale fit for the bards of Ilanor and the grim chronicles of Tier Nan Gorduin. Your journey begins in the battered border town of Arascor, where fear has emptied the streets and only the bravest dare to speak of hope. Within the stone walls of the town hall, the weary official, Magistrate Daren, awaits for the help. His eyes haunted by sleepless nights; he alone knows the dragon's lair and guards the ancient key to the hidden mountain passage. To save Ynev from ruin, you must find the Arascor, earn his trust, learn the beast's whereabouts, and claim the key that opens the path to your destiny!"
+story = ("In the shadow-haunted land of Ynev, the skies have darkened with the wrath of an ancient, forgotten god whose"
+         " anger now takes shape as a colossal dragon, scorching fields and sowing terror among the folk. Rumors swirl "
+         "like autumn leaves, whispering of doom and the god's thirst for vengeance—a tale fit for the bards of Yllanor "
+         "and the grim chronicles of Tier Nan Gorduin. Your journey begins in the battered border town of Arascor, where"
+         " fear has emptied the streets and only the bravest dare to speak of hope. Within the stone walls of the town "
+         "hall, the weary official, Magistrate Daren, awaits for the help. His eyes haunted by sleepless nights; he "
+         "alone knows the dragon's lair and guards the ancient key to the hidden mountain passage.\n\n"
+         "To save Ynev from ruin, you must find Arcenseran in Yllanor, earn his trust, learn the beast's whereabouts, "
+         "and claim the key that opens the path to your destiny!")
 
 while run:
     while epilogue:
@@ -481,12 +545,18 @@ while run:
 
         cp.colorprint_ancientyellow("1. NEW GAME")
         cp.colorprint_ancientyellow("2. LOAD GAME")
-        cp.colorprint_ancientyellow("3. RULES")
+        cp.colorprint_ancientyellow("3. CREDITS")
         cp.colorprint_dwarvenbronze("q. QUIT GAME")
 
-        if rules:
-            print("Here will be the rules displayed.")
-            rules = False
+        if credits:
+            clear()
+            draw()
+            cp.colorprint_emberorange("Created by: ", end="")
+            cp.colorprint_mysticblue("Zsolt Drobina\n")
+            cp.colorprint_emberorange("Base idea belongs to: ", end="")
+            cp.colorprint_mysticblue("lnk.bio/orkslayergamedev")
+            draw()
+            credits = False
             choice = ""
             input("> ")  # empty input
         else:
@@ -525,9 +595,10 @@ while run:
                 input("> ")  # waiting for an input
         elif choice == "3":
             clear()
-            rules = True
+            credits = True
         elif choice == "q":
-            quit()
+            cp.colorprint_infernored("Thanks for playing!")
+            sys.exit()
 
     while play:
         save()  # auto save
@@ -545,7 +616,7 @@ while run:
             cp.colorprint_dwarvenbronze(name)
 
             cp.colorprint_celestialwhite("HP: ", end="")
-            cp.colorprint_infernored(f"{HP}/{HPMAX}")
+            print(f"HP: {color_health_bar(HP, HPMAX)} {HP}/{HPMAX}")
 
             cp.colorprint_celestialwhite("ATK ", end="")
             cp.colorprint_ancientyellow(ATK)
@@ -573,7 +644,7 @@ while run:
                 cp.colorprint_infernored("5 - USE POTION (30HP)")
             if elix > 0:
                 cp.colorprint_pink("5 - USE ELIXIR (50HP)")
-            if map[y][x] == "shop" or map[y][x] == "mayor" or map[y][x] == "cave":
+            if map[y][x] == "Yllinor" or map[y][x] == "shop" or map[y][x] == "blacksmith" or map[y][x] == "jewelery" or map[y][x] == "alchemy" or map[y][x] == "tavern":
                 cp.colorprint_forestgreen("7 - ENTER")
             draw()
 
@@ -616,10 +687,10 @@ while run:
                 input("> ")
                 standing = True
             elif dest == "7":
-                if map[y][x] == "shop":
+                if map[y][x] == "shop" or map[y][x] == "blacksmith" or map[y][x] == "jewelery" or map[y][x] == "alchemy" or map[y][x] == "tavern":
                     buy = True
                     shop()
-                elif map[y][x] == "mayor":
+                elif map[y][x] == "Yllinor":
                     speak = True
                     mayor()
                 elif map[y][x] == "cave":
@@ -627,3 +698,5 @@ while run:
                     cave()
             else:
                 standing = True
+
+input("> ")

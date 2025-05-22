@@ -1,0 +1,33 @@
+# UTF-8
+#
+# For more fields, see: https://pyinstaller.org/en/stable/usage.html#specifying-application-details
+VSVersionInfo(
+  ffi=FixedFileInfo(
+    filevers=(1, 0, 0, 0),
+    prodvers=(1, 0, 0, 0),
+    mask=0x3f,
+    flags=0x0,
+    OS=0x4,
+    fileType=0x1,
+    subtype=0x0,
+    date=(0, 0)
+    ),
+  kids=[
+    StringFileInfo(
+      [
+      StringTable(
+        '040904B0',
+        [
+        StringStruct('Zsolt Drobina', 'Milton Friedman University'),
+        StringStruct('FileDescription', 'ASCII RPG Game to learn Python'),
+        StringStruct('FileVersion', '1.0.0.0'),
+        StringStruct('InternalName', 'miltoneor.exe'),
+        StringStruct('LegalCopyright', 'Copyright (C) 2025 Zsolt Drobina'),
+        StringStruct('OriginalFilename', 'miltoneor.exe'),
+        StringStruct('ProductName', 'Miltoneor'),
+        StringStruct('ProductVersion', '1.0.0.0')
+        ])
+      ]),
+    VarFileInfo([VarStruct('Translation', [1033, 1200])])
+  ]
+)
