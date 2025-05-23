@@ -27,16 +27,30 @@ There are two ways to run the game.
 Make sure python is installed on your computer.
 
 1. Download the source code from here:
-   2. https://github.com/GL0LFK/miltoneor/releases
-2. Install the tabulate module with pip.
-   2. pip install tabulate
-3. Navigate to the directory where the code is located
-4. Run the program
-   5. py.exe miltoneor.py
+   
+   https://github.com/GL0LFK/miltoneor/releases
+3. Install the tabulate module with pip.
+   
+   pip install tabulate
+5. Navigate to the directory where the code is located
+6. Run the program
+   
+   py.exe miltoneor.py
 
 #### Running the .exe
 
 1. Download the .exe from here:
-   2. https://github.com/GL0LFK/miltoneor/releases
-2. Navigate to the folder where you saved it
-3. Run it by double clicking on it
+   
+   https://github.com/GL0LFK/miltoneor/releases
+3. Navigate to the folder where you saved it
+4. Run it by double-clicking on it
+
+### Screen
+
+![1  Opening](https://github.com/user-attachments/assets/49b5700a-78e8-439f-95d8-37eb7f7d5867)
+
+![2  Map - Character - Motion](https://github.com/user-attachments/assets/28ea79ed-e890-4182-ba55-bf983786e2fd)
+
+![3  Battle](https://github.com/user-attachments/assets/6ffdc6c1-8434-4605-8cb9-054d15d357f2)
+
+
