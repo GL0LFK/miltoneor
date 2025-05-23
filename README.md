@@ -17,3 +17,26 @@ Miltonëor features:
 
 Will you unravel the secrets of the ancient gods and save Ynev from ruin, or fall to the darkness that stalks the land?
 Forge your legend in Miltonëor!
+
+### How to play
+
+There are two ways to run the game.
+
+#### Running the code
+
+Make sure python is installed on your computer.
+
+1. Download the source code from here:
+   2. https://github.com/GL0LFK/miltoneor/releases
+2. Install the tabulate module with pip.
+   2. pip install tabulate
+3. Navigate to the directory where the code is located
+4. Run the program
+   5. py.exe miltoneor.py
+
+#### Running the .exe
+
+1. Download the .exe from here:
+   2. https://github.com/GL0LFK/miltoneor/releases
+2. Navigate to the folder where you saved it
+3. Run it by double clicking on it
